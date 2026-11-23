@@ -2418,12 +2418,15 @@ class Base:
 
     def withdraw_app_undo(self):
         desktop = Gdk.get_default_root_window()
-        # convert window coordinates to current workspace so sonata
-        # will always appear on the current workspace with the same
-        # position as it was before (may be on the other workspace)
-        self.config.x %= desktop.get_width()
-        self.config.y %= desktop.get_height()
-        self.window.move(self.config.x, self.config.y)
+        # In wayland, desktop.get_width() may return zero under some circumstances
+        if desktop and desktop.get_width() > 0 and desktop.get_height() > 0:
+            # convert window coordinates to current workspace so sonata
+            # will always appear on the current workspace with the same
+            # position as it was before (may be on the other workspace)
+            self.config.x %= desktop.get_width()
+            self.config.y %= desktop.get_height()
+            self.window.move(self.config.x, self.config.y)
+
         if not self.config.expanded:
             self.notebook.set_no_show_all(True)
             self.statusbar.set_no_show_all(True)
